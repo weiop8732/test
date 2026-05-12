@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GovFind — 全台政府活動智慧平台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f0f0d;
+    --paper: #f5f2eb;
+    --accent: #c84b2f;
+    --accent2: #2563a8;
+    --mid: #6b6860;
+    --border: #d4cfc4;
+    --card: #fffefb;
+    --tag-bg: #efe9d8;
+    --success: #2a7a4b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Instrument Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    border-bottom: 1.5px solid var(--ink);
+    padding: 18px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--paper);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .logo-dot { width: 9px; height: 9px; background: var(--accent); border-radius: 50%; }
+  .nav { display: flex; gap: 28px; font-size: 13px; color: var(--mid); }
+  .nav span { cursor: pointer; }
+  .nav span:hover { color: var(--ink); }
+  .lang-pills { display: flex; gap: 4px; }
+  .lang-pill {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 3px 8px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    cursor: pointer;
+    color: var(--mid);
+    transition: all 0.15s;
+  }
+  .lang-pill.active, .lang-pill:hover {
+    background: var(--ink); color: var(--paper); border-color: var(--ink);
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 56px 40px 40px;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+  }
+  .hero-left h1 {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 42px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -1px;
+    margin-bottom: 16px;
+  }
+  .hero-left h1 em { color: var(--accent); font-style: normal; }
+  .hero-left p { font-size: 15px; color: var(--mid); line-height: 1.7; max-width: 380px; }
+
+  /* ── SEARCH BOX ── */
+  .search-panel {
+    background: var(--card);
+    border: 1.5px solid var(--ink);
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .search-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--mid);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .search-row {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 14px;
+    background: var(--paper);
+  }
+  .search-row input {
+    flex: 1;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-family: 'Instrument Sans', sans-serif;
+    border: none;
+    background: transparent;
+    color: var(--ink);
+    outline: none;
+  }
+  .search-row input::placeholder { color: var(--mid); }
+  .search-btn {
+    padding: 0 20px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    cursor: pointer;
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .search-btn:hover { background: var(--accent); }
+  .filter-row {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px;
+  }
+  .filter-chip {
+    font-size: 12px;
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    cursor: pointer;
+    background: var(--tag-bg);
+    color: var(--mid);
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .filter-chip.active {
+    background: var(--ink); color: var(--paper); border-color: var(--ink);
+  }
+  .quick-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .quick-tag {
+    font-size: 12px; padding: 4px 10px;
+    border: 1px dashed var(--border);
+    border-radius: 20px; cursor: pointer; color: var(--mid);
+    transition: all 0.12s;
+  }
+  .quick-tag:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── MAIN CONTENT ── */
+  .main {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: calc(100vh - 220px);
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    border-right: 1px solid var(--border);
+    padding: 24px 20px;
+  }
+  .sidebar-section { margin-bottom: 28px; }
+  .sidebar-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 12px;
+  }
+  .keyword-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--tag-bg);
+    font-size: 13px;
+  }
+  .keyword-item:last-child { border-bottom: none; }
+  .kw-bar-wrap { width: 80px; height: 4px; background: var(--tag-bg); border-radius: 2px; }
+  .kw-bar { height: 100%; background: var(--accent); border-radius: 2px; }
+  .county-list { display: flex; flex-direction: column; gap: 4px; }
+  .county-item {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; cursor: pointer; padding: 4px 0;
+    color: var(--mid);
+  }
+  .county-item input[type=checkbox] { accent-color: var(--accent); }
+  .county-item.active { color: var(--ink); font-weight: 500; }
+
+  /* ── RESULTS ── */
+  .results-area { padding: 24px 28px; }
+  .results-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .results-meta { font-size: 13px; color: var(--mid); }
+  .results-meta strong { color: var(--ink); }
+  .sort-select {
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    padding: 5px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    cursor: pointer;
+    transition: border-color 0.15s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--border);
+    transition: background 0.15s;
+  }
+  .card:hover { border-color: var(--ink); transform: translateY(-2px); }
+  .card:hover::before { background: var(--accent); }
+  .card-type {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .type-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .dot-event { background: var(--accent2); }
+  .dot-subsidy { background: var(--success); }
+  .dot-course { background: var(--accent); }
+  .card h3 { font-size: 15px; font-weight: 600; line-height: 1.4; margin-bottom: 8px; }
+  .card-meta { font-size: 12px; color: var(--mid); line-height: 1.7; margin-bottom: 12px; }
+  .card-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+  .card-tag {
+    font-size: 11px;
+    padding: 3px 8px;
+    background: var(--tag-bg);
+    border-radius: 20px;
+    color: var(--mid);
+  }
+  .card-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--tag-bg);
+    font-size: 12px;
+  }
+  .card-county { color: var(--mid); }
+  .card-link { color: var(--accent); font-weight: 500; }
+
+  /* ── AI CHAT ── */
+  .ai-section {
+    background: var(--ink);
+    color: var(--paper);
+    margin: 0 28px 28px;
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .ai-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 16px;
+  }
+  .ai-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    background: var(--accent);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+  }
+  .ai-header span { font-size: 14px; opacity: 0.7; }
+  .chat-messages { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+  .msg {
+    max-width: 85%;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .msg-user {
+    background: rgba(255,255,255,0.1);
+    align-self: flex-end;
+    border-radius: 10px 10px 2px 10px;
+  }
+  .msg-ai {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    align-self: flex-start;
+    border-radius: 2px 10px 10px 10px;
+  }
+  .msg-ai strong { color: #fbbf6a; }
+  .typing-indicator {
+    display: flex; gap: 4px; align-items: center;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 2px 10px 10px 10px;
+    width: fit-content;
+  }
+  .typing-dot {
+    width: 6px; height: 6px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 50%;
+    animation: typing 1.2s ease-in-out infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typing { 0%,60%,100%{opacity:0.3;transform:translateY(0)} 30%{opacity:1;transform:translateY(-4px)} }
+
+  .chat-input-row {
+    display: flex;
+    gap: 8px;
+  }
+  .chat-input {
+    flex: 1;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-family: 'Instrument Sans', sans-serif;
+    color: var(--paper);
+    outline: none;
+  }
+  .chat-input::placeholder { color: rgba(255,255,255,0.35); }
+  .chat-input:focus { border-color: rgba(255,255,255,0.35); }
+  .chat-send {
+    padding: 10px 18px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Instrument Sans', sans-serif;
+    transition: opacity 0.15s;
+  }
+  .chat-send:hover { opacity: 0.85; }
+
+  /* ── ANALYTICS STRIP ── */
+  .analytics-strip {
+    border-top: 1.5px solid var(--ink);
+    padding: 28px 40px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+  }
+  .stat-block {
+    padding: 0 28px;
+    border-right: 1px solid var(--border);
+  }
+  .stat-block:first-child { padding-left: 0; }
+  .stat-block:last-child { border-right: none; }
+  .stat-num {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-num span { font-size: 18px; color: var(--accent); }
+  .stat-label { font-size: 12px; color: var(--mid); }
+
+  /* ── DEMAND CHART ── */
+  .demand-section {
+    border-top: 1px solid var(--border);
+    padding: 28px 40px;
+  }
+  .section-heading {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 20px;
+  }
+  .demand-bars { display: flex; gap: 12px; align-items: flex-end; height: 100px; }
+  .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .bar {
+    width: 100%;
+    background: var(--tag-bg);
+    border-radius: 4px 4px 0 0;
+    position: relative;
+    transition: background 0.2s;
+    cursor: pointer;
+  }
+  .bar:hover { background: var(--accent); }
+  .bar-val {
+    position: absolute;
+    top: -20px; left: 50%; transform: translateX(-50%);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--mid);
+    white-space: nowrap;
+  }
+  .bar-label { font-size: 11px; color: var(--mid); text-align: center; }
+  .bar-predicted { background: rgba(200, 75, 47, 0.15); border: 1px dashed var(--accent); }
+  .bar-predicted:hover { background: rgba(200, 75, 47, 0.3); }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1.5px solid var(--ink);
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--mid);
+  }
+  .footer-logo { font-family: 'Noto Serif TC', serif; font-weight: 600; color: var(--ink); }
+
+  /* ── LOADING STATE ── */
+  .skeleton {
+    background: linear-gradient(90deg, var(--tag-bg) 25%, var(--border) 50%, var(--tag-bg) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 6px;
+  }
+  @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+  /* Fade in */
+  .fade-in { animation: fadeIn 0.4s ease forwards; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    GovFind
+  </div>
+  <nav class="nav">
+    <span>活動</span>
+    <span>補助</span>
+    <span>課程</span>
+    <span>分析</span>
+  </nav>
+  <div class="lang-pills">
+    <div class="lang-pill active">中文</div>
+    <div class="lang-pill">EN</div>
+    <div class="lang-pill">VI</div>
+    <div class="lang-pill">ID</div>
+  </div>
+</header>
+
+<!-- HERO / SEARCH -->
+<section class="hero">
+  <div class="hero-left">
+    <h1>全台政府活動<br><em>一站查詢</em></h1>
+    <p>整合各縣市政府、勞動部、衛福部、文化部開放資料。用自然語言問問題，AI 幫你找到最相關的活動、課程與補助。</p>
+  </div>
+  <div class="search-panel">
+    <div class="search-label">AI 智慧查詢</div>
+    <div class="search-row">
+      <input type="text" id="searchInput" placeholder="例如：台北有沒有免費的飲食課程？" />
+      <button class="search-btn" onclick="doSearch()">搜尋</button>
+    </div>
+    <div class="filter-row" id="filterRow">
+      <div class="filter-chip active" onclick="toggleChip(this)">活動</div>
+      <div class="filter-chip active" onclick="toggleChip(this)">課程</div>
+      <div class="filter-chip active" onclick="toggleChip(this)">補助</div>
+      <div class="filter-chip" onclick="toggleChip(this)">免費</div>
+      <div class="filter-chip" onclick="toggleChip(this)">本月</div>
+    </div>
+    <div class="search-label" style="margin-bottom:8px">熱門搜尋</div>
+    <div class="quick-tags">
+      <div class="quick-tag" onclick="setQuery(this)">飲食料理課程</div>
+      <div class="quick-tag" onclick="setQuery(this)">育兒補助</div>
+      <div class="quick-tag" onclick="setQuery(this)">台中親子活動</div>
+      <div class="quick-tag" onclick="setQuery(this)">職業訓練</div>
+      <div class="quick-tag" onclick="setQuery(this)">長照服務</div>
+    </div>
+  </div>
+</section>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">熱門關鍵字</div>
+      <div id="keywordList"></div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-title">縣市篩選</div>
+      <div class="county-list" id="countyList"></div>
+    </div>
+  </aside>
+
+  <!-- RESULTS -->
+  <div style="overflow:hidden">
+    <div class="results-area">
+      <div class="results-header">
+        <div class="results-meta">找到 <strong id="resultCount">8</strong> 筆結果</div>
+        <select class="sort-select">
+          <option>最相關</option>
+          <option>最新上架</option>
+          <option>截止日期</option>
+        </select>
+      </div>
+      <div class="cards-grid" id="cardsGrid"></div>
+    </div>
+
+    <!-- AI CHAT -->
+    <div class="ai-section">
+      <div class="ai-header">
+        <div class="ai-badge">AI Agent</div>
+        <span>問我任何關於政府活動、補助、課程的問題</span>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="msg msg-ai">
+          你好！我可以幫你查詢全台各縣市的政府活動、補助與課程。你可以直接問我，例如：<br>
+          <strong>「台北有哪些今年的飲食相關補助？」</strong>
+        </div>
+      </div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="chatInput" placeholder="輸入你的問題..." onkeydown="if(event.key==='Enter')sendChat()"/>
+        <button class="chat-send" onclick="sendChat()">送出</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ANALYTICS -->
+<div class="analytics-strip">
+  <div class="stat-block">
+    <div class="stat-num">12,847<span>+</span></div>
+    <div class="stat-label">已整合活動筆數</div>
+  </div>
+  <div class="stat-block">
+    <div class="stat-num">22</div>
+    <div class="stat-label">涵蓋縣市</div>
+  </div>
+  <div class="stat-block">
+    <div class="stat-num">3,291</div>
+    <div class="stat-label">本月搜尋人次</div>
+  </div>
+  <div class="stat-block">
+    <div class="stat-num">98<span>%</span></div>
+    <div class="stat-label">語意搜尋準確率</div>
+  </div>
+</div>
+
+<div class="demand-section">
+  <div class="section-heading">需求預測 — 近 6 個月關鍵字搜尋趨勢</div>
+  <div class="demand-bars" id="demandBars"></div>
+</div>
+
+<footer>
+  <div class="footer-logo">GovFind</div>
+  <div>資料來源：data.gov.tw · 各縣市政府 · 勞動部 · 衛福部 · 文化部</div>
+  <div>最後同步：2026-05-12 02:14</div>
+</footer>
+
+<script>
+/* ── DATA ── */
+const mockCards = [
+  { type:'course', title:'日式料理入門班（免費）', org:'台北市勞動局', date:'2026-06-10 ～ 06-14', county:'台北市', tags:['飲食','免費','職訓'], desc:'五天密集課程，涵蓋刀工、高湯、壽司基礎' },
+  { type:'subsidy', title:'飲食文化推廣補助計畫', org:'文化部', date:'申請至 2026-07-31', county:'全國', tags:['補助','飲食','文化'], desc:'最高補助 NT$120,000，適用非營利飲食推廣活動' },
+  { type:'event', title:'2026 台灣美食節', org:'台南市政府', date:'2026-07-05 ～ 07-07', county:'台南市', tags:['活動','飲食','觀光'], desc:'全台 60 家特色餐廳參展，免費入場' },
+  { type:'course', title:'烘焙乙級技術士準備班', org:'台中職訓中心', date:'2026-06-20 開課', county:'台中市', tags:['課程','烘焙','證照'], desc:'政府補助 80% 學費，取得乙級可加薪' },
+  { type:'subsidy', title:'新住民餐飲創業補助', org:'新北市勞工局', date:'申請至 2026-08-15', county:'新北市', tags:['補助','創業','新住民'], desc:'最高 NT$200,000 無息貸款，含餐飲器材採購' },
+  { type:'event', title:'農村飲食體驗工作坊', org:'農業部', date:'每週六 10:00', county:'宜蘭縣', tags:['活動','食農','體驗'], desc:'認識台灣在地食材，現場烹飪示範，名額 20 人' },
+  { type:'course', title:'越南料理文化交流課', org:'高雄市新住民中心', date:'2026-06-28 開課', county:'高雄市', tags:['課程','多元文化','免費'], desc:'連結越南新住民與在地社群，共學東南亞飲食' },
+  { type:'subsidy', title:'長者飲食照護補助', org:'衛生福利部', date:'常態申請', county:'全國', tags:['補助','長照','飲食'], desc:'65 歲以上每月最高 NT$3,000 餐費補助' },
+];
+
+const keywords = [
+  { word:'飲食', pct:92 }, { word:'補助', pct:80 }, { word:'親子', pct:65 },
+  { word:'課程', pct:58 }, { word:'免費', pct:54 }, { word:'職訓', pct:42 },
+];
+
+const counties = ['台北市','新北市','台中市','台南市','高雄市','宜蘭縣','其他'];
+
+const demandData = [
+  { month:'12月', val:42, pred:false },
+  { month:'1月', val:55, pred:false },
+  { month:'2月', val:48, pred:false },
+  { month:'3月', val:70, pred:false },
+  { month:'4月', val:83, pred:false },
+  { month:'5月↑', val:97, pred:true },
+];
+
+/* ── AI RESPONSES ── */
+const aiResponses = {
+  '飲食': '我找到了 <strong>8 筆</strong>飲食相關結果。其中有 3 個免費課程、2 項補助計畫，以及多場體驗活動。<br>最推薦的是「<strong>日式料理入門班</strong>」（台北，6月開課，完全免費）和「<strong>飲食文化推廣補助</strong>」（全國，最高 12 萬）。',
+  '補助': '共找到 <strong>4 項</strong>補助計畫符合你的需求。依縣市分：台北、新北、全國皆有。<br>若你是新住民，新北市有最高 <strong>20 萬無息貸款</strong>的創業補助，截止日 8/15，建議儘早申請。',
+  '親子': '台中、台南本月有 <strong>6 場</strong>親子活動，多數免費參加。<br>最熱門的是「台灣美食節」（台南，7月），適合親子共遊，並設有兒童烹飪體驗區。',
+  'default': '根據你的查詢，我從全台 22 個縣市的資料庫中找到相關結果。以下是最符合你需求的活動與補助，你可以進一步告訴我<strong>縣市偏好</strong>或<strong>預算範圍</strong>來精準篩選。',
+};
+
+function getAIReply(msg) {
+  for (const k of Object.keys(aiResponses)) {
+    if (msg.includes(k)) return aiResponses[k];
+  }
+  return aiResponses['default'];
+}
+
+/* ── RENDER KEYWORDS ── */
+function renderKeywords() {
+  document.getElementById('keywordList').innerHTML = keywords.map(k => `
+    <div class="keyword-item">
+      <span>${k.word}</span>
+      <div class="kw-bar-wrap"><div class="kw-bar" style="width:${k.pct}%"></div></div>
+    </div>
+  `).join('');
+}
+
+/* ── RENDER COUNTIES ── */
+function renderCounties() {
+  document.getElementById('countyList').innerHTML = counties.map((c, i) => `
+    <label class="county-item ${i < 2 ? 'active' : ''}">
+      <input type="checkbox" ${i < 2 ? 'checked' : ''}> ${c}
+    </label>
+  `).join('');
+}
+
+/* ── RENDER CARDS ── */
+function typeLabel(t) {
+  return { course:'課程', subsidy:'補助', event:'活動' }[t] || t;
+}
+function dotClass(t) {
+  return { course:'dot-course', subsidy:'dot-subsidy', event:'dot-event' }[t] || '';
+}
+
+function renderCards(cards) {
+  document.getElementById('resultCount').textContent = cards.length;
+  document.getElementById('cardsGrid').innerHTML = cards.map((c, i) => `
+    <div class="card fade-in" style="animation-delay:${i * 0.05}s">
+      <div class="card-type">
+        <div class="type-dot ${dotClass(c.type)}"></div>
+        ${typeLabel(c.type)}
+      </div>
+      <h3>${c.title}</h3>
+      <div class="card-meta">${c.org}<br>${c.date}<br><span style="font-size:11px;color:var(--mid)">${c.desc}</span></div>
+      <div class="card-tags">${c.tags.map(t => `<span class="card-tag">${t}</span>`).join('')}</div>
+      <div class="card-footer">
+        <span class="card-county">${c.county}</span>
+        <span class="card-link">查看詳情 →</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ── RENDER DEMAND BARS ── */
+function renderDemand() {
+  const max = Math.max(...demandData.map(d => d.val));
+  document.getElementById('demandBars').innerHTML = demandData.map(d => `
+    <div class="bar-wrap">
+      <div class="bar ${d.pred ? 'bar-predicted' : ''}" style="height:${Math.round(d.val/max*90)}px">
+        <span class="bar-val">${d.val}</span>
+      </div>
+      <div class="bar-label">${d.month}${d.pred ? '<br><span style="color:var(--accent);font-size:9px">預測</span>' : ''}</div>
+    </div>
+  `).join('');
+}
+
+/* ── SEARCH ── */
+function doSearch() {
+  const q = document.getElementById('searchInput').value;
+  if (!q) return;
+  const filtered = mockCards.filter(c =>
+    c.tags.some(t => q.includes(t)) ||
+    c.title.toLowerCase().includes(q.toLowerCase()) ||
+    q.includes('補助') && c.type === 'subsidy' ||
+    q.includes('課程') && c.type === 'course' ||
+    q.includes('活動') && c.type === 'event'
+  );
+  renderCards(filtered.length ? filtered : mockCards);
+  // also trigger chat
+  addUserMsg(q);
+  setTimeout(() => {
+    removeTyping();
+    addAIMsg(getAIReply(q));
+  }, 1100);
+  showTyping();
+}
+
+function setQuery(el) {
+  document.getElementById('searchInput').value = el.textContent;
+  doSearch();
+}
+
+function toggleChip(el) { el.classList.toggle('active'); }
+
+/* ── CHAT ── */
+function addUserMsg(text) {
+  const el = document.createElement('div');
+  el.className = 'msg msg-user fade-in';
+  el.textContent = text;
+  document.getElementById('chatMessages').appendChild(el);
+  el.scrollIntoView({ behavior: 'smooth' });
+}
+function addAIMsg(html) {
+  const el = document.createElement('div');
+  el.className = 'msg msg-ai fade-in';
+  el.innerHTML = html;
+  document.getElementById('chatMessages').appendChild(el);
+  el.scrollIntoView({ behavior: 'smooth' });
+}
+function showTyping() {
+  const el = document.createElement('div');
+  el.className = 'typing-indicator';
+  el.id = 'typing';
+  el.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+  document.getElementById('chatMessages').appendChild(el);
+  el.scrollIntoView({ behavior: 'smooth' });
+}
+function removeTyping() {
+  const t = document.getElementById('typing');
+  if (t) t.remove();
+}
+function sendChat() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  addUserMsg(msg);
+  showTyping();
+  setTimeout(() => {
+    removeTyping();
+    addAIMsg(getAIReply(msg));
+  }, 900 + Math.random() * 500);
+}
+
+document.getElementById('chatInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') sendChat();
+});
+
+/* ── INIT ── */
+renderKeywords();
+renderCounties();
+renderCards(mockCards);
+renderDemand();
+</script>
+</body>
+</html>
